@@ -16,3 +16,8 @@
   max-width: 70vw;
   margin: 0 auto;
 }
+
+.App-select-container {
+  width: 100%;
+  text-align: right;
+}
