@@ -17,9 +17,9 @@ function App() {
   ];
 
   const [torrents, setTorrents] = useState<Torrent[]>([]);
-  const [selectedFilter, setFilter] = useState<TimeSpan>(filters[0]);
+  const [selectedFilter, setFilter] = useState<TimeSpan>(filters[1]);
   
-  const handleFilterChange = (event: any) => setFilter(filters.find(filter => filter.hours == event.target.value) || filters[0])
+  const handleFilterChange = (event: any) => setFilter(filters.find(filter => filter.hours == event.target.value) || filters[1])
 
   useEffect(() => {
     getStats().then(setTorrents)
@@ -34,7 +34,7 @@ function App() {
           <div className='App-select-container'>
             <Select bg='white' placeholder='Filter' maxW='300px' float='right' mt='-30px' onChange={handleFilterChange}>
               {
-                filters.map((filter) => (<option value={filter.hours}>{filter.description}</option>))
+                filters.map((filter) => (<option value={filter.hours} selected={filter.hours == selectedFilter.hours}>{filter.description}</option>))
               }
             </Select>
           </div>

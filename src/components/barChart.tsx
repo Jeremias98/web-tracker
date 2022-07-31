@@ -15,30 +15,48 @@ export const BarChart: FC<TorrentsTableProps> = (props: TorrentsTableProps): JSX
     if (!torrents || !torrents.length) return (<h5>No torrents</h5>);
     let span: TimeSpan = props.span;
     const peers: Peer[] = getPeersSorted(torrents);
-    console.log(peers[peers.length - 1].registered);
     const xAxisDates: Date[] = getHorizontalAxis(peers[0].registered, 'HOUR', span);
 
     const yAxisData: number[] = getVerticalAxis(peers, xAxisDates);
-    console.log(yAxisData);
     const xAxisData: string[] = xAxisDates.map(date => getDateAsString(date, 'HOUR'));
     
     const option = {
+      tooltip: {
+        trigger: 'axis',
+        position: function (pt: any) {
+          return [pt[0], '10%'];
+        }
+      },
+      toolbox: {
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none'
+          },
+          restore: {},
+          saveAsImage: {}
+        }
+      },
       xAxis: {
         type: 'category',
         boundaryGap: false,
         data: xAxisData
       },
       yAxis: {
-        type: 'value'
+        type: 'value',
+        boundaryGap: [0, '100%']
       },
       series: [
         {
-          data: yAxisData,
+          name: 'New peers',
           type: 'line',
-          areaStyle: {}
+          smooth: false,
+          symbol: 'none',
+          areaStyle: {},
+          data: yAxisData
         }
       ]
     };
+
     return (
         <>
             <ReactECharts option={option} />
@@ -54,11 +72,10 @@ const getHorizontalAxis = (startDate: Date, step: Step, timeSpan: TimeSpan): Dat
   let unitTime: number = step === 'HOUR' ? timeSpan.hours : timeSpan.hours*60;
 
   [...Array(unitTime)].forEach((_, unit) => {
-    if (step === 'HOUR') currentDate.setHours(currentDate.getHours() - unit);
-    else if (step === 'MINUTE') currentDate.setMinutes(currentDate.getMinutes() -unit);
+    if (step === 'HOUR') currentDate.setHours(currentDate.getHours() - 1);
+    else if (step === 'MINUTE') currentDate.setMinutes(currentDate.getMinutes() - 1);
 
     let now: Date = new Date(currentDate);
-    console.log(now);
     data.unshift(now);
   });
   
@@ -73,7 +90,6 @@ const getDateAsString = (date: Date, step: Step) => {
 };
 
 const getVerticalAxis = (peers: Peer[], dates: Date[]): number[] => {
-  console.log(peers); 
   return dates.map(date => peers.filter(peer => areDatesEquals(peer.registered, date)).length);
 };
 
