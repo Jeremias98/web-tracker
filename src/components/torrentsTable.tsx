@@ -37,7 +37,7 @@ export const TorrentsTable: FC<TorrentsTableProps>  = (props: TorrentsTableProps
                             return (
                                 <Tr>
                                     <Td>{torrent.infoHash}</Td>
-                                    <Td>{torrent.added.getDate() + "/" + (torrent.added.getMonth() + 1) + "/" + torrent.added.getFullYear()}</Td>
+                                    <Td>{torrent.added.getDate() + "/" + (torrent.added.getMonth() + 1) + "/" + torrent.added.getFullYear() + " " + torrent.added.getHours() + ":" + torrent.added.getMinutes()}</Td>
                                     <Td>{total}</Td>
                                     <Td>{seeders}</Td>
                                     <Td>{leechers}</Td>

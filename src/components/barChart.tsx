@@ -1,37 +1,96 @@
 import { FC } from 'react';
 import { Torrent } from '../models/torrent';
 import ReactECharts from 'echarts-for-react';
+import { Step } from '../types/step';
+import { TimeSpan } from '../interfaces/lapse';
+import { Peer } from '../models/peer';
 
 interface TorrentsTableProps {
-    torrents: Torrent[]
+    torrents: Torrent[],
+    span: TimeSpan
 }
 
 export const BarChart: FC<TorrentsTableProps> = (props: TorrentsTableProps): JSX.Element => {
     let torrents: Torrent[] = props.torrents;
+    if (!torrents || !torrents.length) return (<h5>No torrents</h5>);
+    let span: TimeSpan = props.span;
+    const peers: Peer[] = getPeersSorted(torrents);
+    console.log(peers[peers.length - 1].registered);
+    const xAxisDates: Date[] = getHorizontalAxis(peers[0].registered, 'HOUR', span);
 
+    const yAxisData: number[] = getVerticalAxis(peers, xAxisDates);
+    console.log(yAxisData);
+    const xAxisData: string[] = xAxisDates.map(date => getDateAsString(date, 'HOUR'));
+    
     const option = {
-        xAxis: {
-          type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: [
-          {
-            data: [120, 200, 150, 80, 70, 110, 130],
-            type: 'bar',
-            showBackground: true,
-            backgroundStyle: {
-              color: 'rgba(180, 180, 180, 0.2)'
-            }
-          }
-        ]
-      };
-
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: xAxisData
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: yAxisData,
+          type: 'line',
+          areaStyle: {}
+        }
+      ]
+    };
     return (
         <>
             <ReactECharts option={option} />
         </>
     );
+}
+
+const getHorizontalAxis = (startDate: Date, step: Step, timeSpan: TimeSpan): Date[] => {
+
+  let currentDate: Date = new Date(startDate);
+  let data: Date[] = [];
+
+  let unitTime: number = step === 'HOUR' ? timeSpan.hours : timeSpan.hours*60;
+
+  [...Array(unitTime)].forEach((_, unit) => {
+    if (step === 'HOUR') currentDate.setHours(currentDate.getHours() - unit);
+    else if (step === 'MINUTE') currentDate.setMinutes(currentDate.getMinutes() -unit);
+
+    let now: Date = new Date(currentDate);
+    console.log(now);
+    data.unshift(now);
+  });
+  
+  return data;
+};
+
+const getDateAsString = (date: Date, step: Step) => {
+  let dateStr: string = [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('/') + ' - ' + date.getHours();
+  if (step ===  'MINUTE') dateStr += ':' + date.getMinutes();
+
+  return dateStr + 'hs';
+};
+
+const getVerticalAxis = (peers: Peer[], dates: Date[]): number[] => {
+  console.log(peers); 
+  return dates.map(date => peers.filter(peer => areDatesEquals(peer.registered, date)).length);
+};
+
+const areDatesEquals = (date1: Date, date2: Date, step: Step = 'HOUR') => {
+  if (step === 'HOUR') {
+    return date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate() &&
+      date1.getHours() === date2.getHours()
+  }
+
+  return date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate() &&
+      date1.getHours() === date2.getHours() &&
+      date1.getMinutes() === date2.getMinutes()
+}
+const getPeersSorted = (torrents: Torrent[]): Peer[] => {
+  return torrents.flatMap(torrent => torrent.peers).sort((a, b) => b.registered.valueOf() - a.registered.valueOf());
 }
