@@ -1,8 +1,27 @@
 import { Torrent } from "../models/torrent";
 
 export const getStats = async (): Promise<Torrent[]> => {
-    return new Promise<Torrent[]>((resolve) => {
-        resolve([
+    return new Promise<Torrent[]>(async (resolve) => {
+        // create a new XMLHttpRequest
+        var xhr = new XMLHttpRequest()
+        // get a callback when the server responds
+        xhr.addEventListener('load', () => {
+            // update the state of the component with the result here
+            if(xhr.responseText === "no torrents data")
+                alert("no torrents data")
+            else{
+                console.log(xhr.responseText)
+                console.log(JSON.parse(xhr.responseText))                
+                resolve(JSON.parse(xhr.responseText))
+            }
+
+        })
+        // open the request with the verb and the url
+        xhr.open('GET', 'http://127.0.0.1:5001/stats')
+        // send the request
+        xhr.send()
+    
+        /*resolve([
             {
                 infoHash: "INFO_HASH_1",
                 added: new Date(),
@@ -43,6 +62,6 @@ export const getStats = async (): Promise<Torrent[]> => {
                 ]
             }
         ]
-        );
+        );*/
     });
 }
