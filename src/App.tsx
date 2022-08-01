@@ -20,9 +20,13 @@ function App() {
   const [selectedFilter, setFilter] = useState<TimeSpan>(filters[1]);
   
   const handleFilterChange = (event: any) => setFilter(filters.find(filter => filter.hours == event.target.value) || filters[1])
-
+  const getTorrents = () => getStats().then(setTorrents);
   useEffect(() => {
-    getStats().then(setTorrents)
+    getTorrents();
+    const interval = setInterval(() => {
+      getTorrents();
+    }, 10000);
+    return () => { clearInterval(interval) };
   }, []);
 
   return (
@@ -32,9 +36,9 @@ function App() {
         <div className='App-cards-container'>
           <Text fontSize='2xl' fontWeight='bold'>404 Not Found - Tracker</Text>
           <div className='App-select-container'>
-            <Select bg='white' placeholder='Filter' maxW='300px' float='right' mt='-30px' onChange={handleFilterChange}>
+            <Select bg='white' placeholder='Filter' maxW='300px' float='right' mt='-30px' onChange={handleFilterChange} defaultValue={selectedFilter.hours}>
               {
-                filters.map((filter) => (<option value={filter.hours} selected={filter.hours == selectedFilter.hours}>{filter.description}</option>))
+                filters.map((filter) => (<option value={filter.hours}>{filter.description}</option>))
               }
             </Select>
           </div>

@@ -16,8 +16,7 @@ export const getStats = async (): Promise<Torrent[]> => {
                                     //peer.updated = new Date(peer.updated);
                                 })
                 })
-                console.log(response)
-                resolve(response)
+                resolve(response);
             }
         })
 

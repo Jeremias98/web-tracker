@@ -15,7 +15,6 @@ export const BarChart: FC<TorrentsTableProps> = (props: TorrentsTableProps): JSX
     if (!torrents || !torrents.length) return (<h5>No torrents</h5>);
     let span: TimeSpan = props.span;
     const peers: Peer[] = getPeersSorted(torrents);
-    console.log(peers);
     const xAxisDates: Date[] = getHorizontalAxis(peers[0].registered, 'HOUR', span);
 
     const yAxisData: number[] = getVerticalAxis(peers, xAxisDates);
