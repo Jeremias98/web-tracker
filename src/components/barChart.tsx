@@ -15,6 +15,7 @@ export const BarChart: FC<TorrentsTableProps> = (props: TorrentsTableProps): JSX
     if (!torrents || !torrents.length) return (<h5>No torrents</h5>);
     let span: TimeSpan = props.span;
     const peers: Peer[] = getPeersSorted(torrents);
+    console.log(peers);
     const xAxisDates: Date[] = getHorizontalAxis(peers[0].registered, 'HOUR', span);
 
     const yAxisData: number[] = getVerticalAxis(peers, xAxisDates);
@@ -72,11 +73,11 @@ const getHorizontalAxis = (startDate: Date, step: Step, timeSpan: TimeSpan): Dat
   let unitTime: number = step === 'HOUR' ? timeSpan.hours : timeSpan.hours*60;
 
   [...Array(unitTime)].forEach((_, unit) => {
-    if (step === 'HOUR') currentDate.setHours(currentDate.getHours() - 1);
-    else if (step === 'MINUTE') currentDate.setMinutes(currentDate.getMinutes() - 1);
-
     let now: Date = new Date(currentDate);
     data.unshift(now);
+    
+    if (step === 'HOUR') currentDate.setHours(currentDate.getHours() - 1);
+    else if (step === 'MINUTE') currentDate.setMinutes(currentDate.getMinutes() - 1);
   });
   
   return data;

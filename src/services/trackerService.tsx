@@ -8,10 +8,17 @@ export const getStats = async (): Promise<Torrent[]> => {
             if(xhr.responseText === "no torrents data")
                 alert("no torrents data")
             else{
-                console.log(JSON.parse(xhr.responseText))
-                resolve(JSON.parse(xhr.responseText))
+                let response: Torrent[] = JSON.parse(xhr.responseText);
+                response.map(r=>{
+                                r.added = new Date(r.added);
+                                r.peers.map(peer=>{
+                                    peer.registered = new Date(peer.registered);
+                                    //peer.updated = new Date(peer.updated);
+                                })
+                })
+                console.log(response)
+                resolve(response)
             }
-
         })
 
         xhr.open('GET', 'http://127.0.0.1:5001/stats')
